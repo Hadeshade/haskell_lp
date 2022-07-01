@@ -30,3 +30,49 @@ doubleList = map (multiply 2)
   mas eles só usam um, esperando que a função 
   mande o segundo parametro;
 -}
+
+maiorQ :: Int -> Int -> Int
+maiorQ a b | a > b = a
+        | a < b = b
+        | a == b = a
+
+maior4 :: Int -> Int -> Int -> Int -> Int
+maior4 a b c d = maiorQ (maiorQ a b) (maiorQ c d)
+
+
+converterNotaParaMencao :: Float -> String
+converterNotaParaMencao x | x == 0 = "SR"
+    | (x >= 0.1) && (x <= 2.9 ) = "II"
+    | (x >= 3.0) && (x <= 4.9 ) = "MI"
+    | (x >= 5.0) && (x <= 6.9 ) = "MM"
+    | (x >= 7) && (x <= 8.9 ) = "MS"
+    | (x >= 9) && (x <= 10 ) = "SS"
+
+isDecrescente :: [Int] -> Bool
+isDecrescente [] = True
+isDecrescente (a:[]) = True 
+isDecrescente (a:b:[]) = a > b
+isDecrescente (a:b:bs) = (a > b) && isDecrescente (b:bs)
+
+-- Questão 4 e suas funções ____________________________________________
+comparador :: String -> String -> Int
+comparador a b | a == b = 1
+  | a /= b = 0
+
+contador :: [String] -> String -> Int
+contador [] _ = 0
+contador (a:[]) b = comparador a b
+contador (a:as) b = (comparador a b) + (contador as b) 
+
+novaLista :: [String] -> String -> [String]
+novaLista [] _ = []
+novaLista (a:as) b | as == [] && a == b = []
+  | as == [] && a /= b = [a]
+  | as /= [] && a == b = novaLista as b 
+  | as /= [] && a /= b = a:(novaLista as b)
+
+histograma :: [String] -> [(String, Int)]
+histograma [] = []
+histograma (a:[]) = [(a,(comparador a a))] 
+histograma (a:as) = (a,1+(contador as a)):(histograma (novaLista as a) )
+-- _____________________________________________________________________
