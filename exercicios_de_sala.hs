@@ -1,3 +1,4 @@
+import Data.List
 -- Exercicios de sala:
 
 fold :: (t -> u -> u) -> u -> [t] -> u
@@ -54,7 +55,9 @@ isDecrescente (a:[]) = True
 isDecrescente (a:b:[]) = a > b
 isDecrescente (a:b:bs) = (a > b) && isDecrescente (b:bs)
 
+
 -- Questão 4 e suas funções ____________________________________________
+
 comparador :: String -> String -> Int
 comparador a b | a == b = 1
   | a /= b = 0
@@ -75,4 +78,30 @@ histograma :: [String] -> [(String, Int)]
 histograma [] = []
 histograma (a:[]) = [(a,(comparador a a))] 
 histograma (a:as) = (a,1+(contador as a)):(histograma (novaLista as a) )
--- _____________________________________________________________________
+-- Questão 5____________________________________________________
+
+myZipWith :: (a -> b -> c) -> [a] -> [b] -> [c]
+myZipWith _ [] _ = []
+myZipWith _ _ []  = []
+myZipWith funcao (a:as) (b:bs) 
+  | (null as) || (null bs) = (funcao a b):[]
+  | otherwise = (funcao a b):(myZipWith funcao as bs)
+
+-- Questao 6____________________________________________________
+
+mediaNotas :: Float -> Float -> Float
+mediaNotas a b = (a+b)/2.0
+
+mediaNotasTotal :: (Float -> Float -> Float) -> [(String,Float,Float)] -> [(String,Float)]
+mediaNotasTotal _ [] = []
+mediaNotasTotal f ((al,n1,n2):ls) 
+  | (null ls) = [(al,(f n1 n2))]
+  | not (null ls) = (al,(f n1 n2)):(mediaNotasTotal f ls)
+
+aprovadosOrdemDeMedia :: [(String,Float,Float)] -> [(String,Float)]
+aprovadosOrdemDeMedia [] = []
+aprovadosOrdemDeMedia ((aluno,nota1,nota2):lista)
+  | (mediaNotas nota1 nota2) < 5 = sortBy (\(_,a) (_,b) -> compare a b) (aprovadosOrdemDeMedia lista)
+  | (mediaNotas nota1 nota2) >= 5 = sortBy (\(_,a) (_,b) -> compare a b) ((aluno,(mediaNotas nota1 nota2) ):(aprovadosOrdemDeMedia lista))
+
+-- Questao 7______________________________________________________
