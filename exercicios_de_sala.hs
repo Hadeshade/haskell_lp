@@ -105,3 +105,21 @@ aprovadosOrdemDeMedia ((aluno,nota1,nota2):lista)
   | (mediaNotas nota1 nota2) >= 5 = sortBy (\(_,a) (_,b) -> compare a b) ((aluno,(mediaNotas nota1 nota2) ):(aprovadosOrdemDeMedia lista))
 
 -- Questao 7______________________________________________________
+somaMatricial :: Num u => [[u]] -> [[u]] -> [[u]]
+somaMatricial [] _ = []
+somaMatricial _ [] = []
+somaMatricial (a:as) (b:bs) 
+  | (null as) || (null as) = (myZipWith (+) a b):[]
+  | otherwise = (myZipWith (+) a b):(somaMatricial as bs)
+
+matrizTransposta :: Num u => [[u]] -> [[u]]
+matrizTransposta [] = []
+matrizTransposta ([]:_) = []
+matrizTransposta m = (map head m): (matrizTransposta (map tail m) )
+
+
+multiplicacaoMatricial :: Num u => [[u]] -> [[u]] -> [[u]]
+multiplicacaoMatricial m1 m2 = [[prodInterno ri rj | rj <- m2'] | ri <- m1]
+  where
+    m2' = matrizTransposta m2
+    prodInterno l1 l2 = sum $ myZipWith (*) l1 l2
