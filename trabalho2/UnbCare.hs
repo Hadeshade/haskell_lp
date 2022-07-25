@@ -1,6 +1,7 @@
 module UnBCare where
 
 import ModeloDados
+import Data.Maybe (isNothing)
 
 -- Questão 1 e função auxiliar: ______________________________________________________________________
 comprarMedicamento :: Medicamento -> Quantidade -> EstoqueMedicamentos -> EstoqueMedicamentos
@@ -99,12 +100,55 @@ arrumaReceituario (a:b:list)
 
 -- Questão 9 (A FAZER) ______________________________________________________________________
 executaPlantao :: Plantao -> EstoqueMedicamentos -> Maybe EstoqueMedicamentos
-executaPlantao = undefined
+executaPlantao plant [] = Nothing
+executaPlantao plant estoque 
+    | all (> 0) (snd (unzip (func g))) = Just (func g )
+    | otherwise = Nothing
+    where
+        g = (zip (quickSort (organizaEstoque ((map medicamentosDisponiveis  (concat (snd (unzip plant))))))) estoque)
+
+
+medicamentosDisponiveis :: Cuidado -> (Medicamento, Quantidade)
+medicamentosDisponiveis cuid = case cuid of
+    Comprar med x -> (med,x)
+    Medicar med -> (med,(-1))
+
+organizaEstoque :: EstoqueMedicamentos -> EstoqueMedicamentos
+organizaEstoque [] = []
+organizaEstoque (a:[]) = [a]
+organizaEstoque (estoq1:estoq2:lista) 
+    | fst estoq1 == fst estoq2 = organizaEstoque ([(fst estoq1, (snd estoq1 + snd estoq2))] ++ lista)
+    | otherwise = [estoq1] ++ organizaEstoque (estoq2:lista)
+
+func :: [((Medicamento,Quantidade),(Medicamento,Quantidade))] -> EstoqueMedicamentos
+func [] = []
+func (a:as) 
+    | fst (fst a) /= fst (snd a) = func as
+    | otherwise = ((fst (fst a) , snd (fst a) + snd (snd a))):(func as)
+
 
 -- Questão 10 (A FAZER) ______________________________________________________________________
 satisfaz :: Plantao -> PlanoMedicamento -> EstoqueMedicamentos -> Bool
-satisfaz = undefined
+satisfaz _ _ [] = False
+satisfaz plant plano estoq 
+    | isNothing (executaPlantao plant estoq) && (plantaoValido plant) && (planoValido plano) = False
+    | otherwise = True
 
 -- Questão 11 (A FAZER) ______________________________________________________________________
+-- plantaoCorreto :: PlanoMedicamento -> EstoqueMedicamentos -> Plantao
+-- plantaoCorreto _ [] = []
+-- percorrerEstoque ((horario,medicamentos):planos) ((medic,quanti):estoques)
+--     | 
+
 plantaoCorreto :: PlanoMedicamento -> EstoqueMedicamentos -> Plantao
-plantaoCorreto = undefined
+plantaoCorreto [] [] = []
+plantaoCorreto (a:as) [] = (fst a, map (\ x -> Medicar x) (snd a)):(plantaoCorreto as [])
+plantaoCorreto a b = (1,[Comprar x y | x <- map fst b , y <- map snd b]):(plantaoCorreto a [])
+
+
+necessitaComprar :: EstoqueMedicamentos -> EstoqueMedicamentos -> EstoqueMedicamentos
+necessitaComprar [] b = b --map ((+1) . snd) b
+necessitaComprar _ [] = []
+necessitaComprar (a:as) (b:bs) -- (a:as) = estoque e (b:bs) = plano
+    | fst a == fst b && snd a > snd b = necessitaComprar as bs
+    | fst a == fst b && snd a <= snd b = (fst a, (snd b) + 1):(necessitaComprar as bs)
